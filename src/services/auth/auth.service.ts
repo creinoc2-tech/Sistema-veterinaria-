@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from '../../dtos/auth/register.dto';
@@ -96,11 +97,11 @@ export class AuthService {
     const { email, password } = loginDto;
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
-      throw new InternalServerErrorException('User not found');
+      throw new UnauthorizedException('Invalid credentials'); // ✅
     }
     const isPasswordValid = await compareHash(password, user.password);
     if (!isPasswordValid) {
-      throw new InternalServerErrorException('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials'); // ✅
     }
     const tokens = await this.generateTokens(user.id, user.email, user.role);
     await this.udateRefreshToken(user.id, tokens.refreshToken);
@@ -135,9 +136,10 @@ export class AuthService {
     userId: string,
     refreshToken: string,
   ): Promise<void> {
+    const hashedRefreshToken = await generateHash(refreshToken);
     await this.prisma.user.update({
       where: { id: userId },
-      data: { refreshToken: refreshToken },
+      data: { refreshToken: hashedRefreshToken },
     });
   }
 }
