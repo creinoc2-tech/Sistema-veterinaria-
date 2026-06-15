@@ -5,7 +5,7 @@
 
 generator client {
   provider = "prisma-client-js"
- // output   = "../generated/prisma"
+  // output   = "../generated/prisma"
 }
 
 datasource db {
@@ -19,15 +19,110 @@ enum Role {
   CLIENTE
 }
 
+enum Especie {
+  PERRO
+  GATO
+  AVE
+  CONEJO
+  OTRO
+}
+
+enum Sexo {
+  MACHO
+  HEMBRA
+}
+
+enum MetodoPago {
+  EFECTIVO
+  TARJETA
+  TRANSFERENCIA
+}
+
+enum EstadoPago {
+  PENDIENTE
+  PAGADO
+  ANULADO
+}
+
 model User {
-  id           String   @id @default(cuid())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  email        String   @unique
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  email        String    @unique
   password     String
   firstname    String
   lastname     String
-  role         Role     @default(CLIENTE)
+  role         Role      @default(CLIENTE)
   refreshToken String?
+  mascotas     Mascota[]
+  facturas     Factura[]
 }
- 
+
+model Mascota {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  nombre   String
+  especie  Especie
+  raza     String?
+  sexo     Sexo
+  fechaNac DateTime?
+  peso     Float?
+  color    String?
+  foto     String?
+  duenoId  String
+  dueno    User      @relation(fields: [duenoId], references: [id], onDelete: Cascade)
+   
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  name       String    @unique
+  descripcion String?   
+  slug        String    @unique
+  isActive    Boolean   @default(true) 
+  products  Product[]
+}
+
+model Product {
+  id           String        @id @default(uuid())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  nombre       String
+  descripcion  String?
+  precio       Decimal       @db.Decimal(10, 2)
+  stock        Int           @default(0)
+  sku          String        @unique
+  imageUrl     String?
+  isActive     Boolean       @default(true)
+  categoryId   String
+  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  facturaItems FacturaItem[]
+ }
+
+model Factura {
+  id         String        @id @default(uuid())
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  numero     String        @unique @default(cuid())
+  total      Decimal       @db.Decimal(10, 2)
+  metodoPago MetodoPago
+  estadoPago EstadoPago    @default(PENDIENTE)
+  userId     String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items      FacturaItem[]
+}
+
+model FacturaItem {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  facturaId String
+  factura   Factura  @relation(fields: [facturaId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cantidad  Int
+  precio    Decimal  @db.Decimal(10, 2)
+}
