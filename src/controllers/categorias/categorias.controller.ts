@@ -93,6 +93,18 @@ export class CategoriasController {
     return this.categoriasService.findAllActive(queryDto);
   }
 
+  @Get('slug/:slug')
+  @ApiOperation({ summary: 'Get category by slug' })
+  @ApiResponse({
+    status: 200,
+    description: 'Category details',
+    type: CategoryResponseDto,
+  })
+  @ApiResponse({ status: 404, description: 'Category not found' })
+  async findBySlug(@Param('slug') slug: string): Promise<CategoryResponseDto> {
+    return this.categoriasService.findBySlug(slug);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get category by ID' })
   @ApiResponse({
@@ -106,18 +118,6 @@ export class CategoriasController {
   })
   async findById(@Param('id') id: string): Promise<CategoryResponseDto> {
     return this.categoriasService.findById(id);
-  }
-
-  @Get('slug/:slug')
-  @ApiOperation({ summary: 'Get category by slug' })
-  @ApiResponse({
-    status: 200,
-    description: 'Category details',
-    type: CategoryResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Category not found' })
-  async findBySlug(@Param('slug') slug: string): Promise<CategoryResponseDto> {
-    return this.categoriasService.findBySlug(slug);
   }
 
   @Patch(':id')

@@ -31,7 +31,6 @@ export class CreateCategoryDto {
     example: true,
     description: 'Indicates if the category is active',
     required: false,
-    default: true,
   })
   @IsBoolean()
   @IsOptional()

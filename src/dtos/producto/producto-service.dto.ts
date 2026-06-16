@@ -7,7 +7,8 @@ import {
   Min,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-export class QueryCategoryDto {
+
+export class QueryProductoDto {
   @ApiPropertyOptional({
     description: 'Filter by active status',
     example: true,
@@ -20,6 +21,14 @@ export class QueryCategoryDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Filter by category',
+    example: 'Electronics',
+  })
+  @IsString()
+  @IsOptional()
+  category?: string;
 
   @ApiPropertyOptional({
     description: 'Search term to filter categories by name or description',

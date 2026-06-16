@@ -33,6 +33,7 @@ export class CategoriasService {
         name,
         descripcion,
         slug,
+        isActive: createCategoryDto.isActive ?? true,
       },
       include: {
         _count: {
@@ -55,12 +56,12 @@ export class CategoriasService {
 
   async findAll(): Promise<CategoryResponseDto[]> {
     const categorias = await this.prisma.category.findMany({
+      orderBy: { createdAt: 'desc' },
       include: {
         _count: {
           select: { products: true },
         },
       },
-      where: { isActive: true },
     });
 
     return categorias.map((categoria) => ({
@@ -68,7 +69,7 @@ export class CategoriasService {
       name: categoria.name,
       descripcion: categoria.descripcion,
       slug: categoria.slug,
-      isActive: categoria.isActive,
+      isActive: categoria.isActive ?? true,
       createdAt: categoria.createdAt,
       updatedAt: categoria.updatedAt,
       productCount: categoria._count.products,
@@ -79,55 +80,59 @@ export class CategoriasService {
     data: CategoryResponseDto[];
     meta: { total: number; page: number; limit: number; totalPages: number };
   }> {
-    const { isActive, search, page = 1, limit = 10 } = queryDto;
+    try {
+      const { isActive, search, page = 1, limit = 10 } = queryDto;
 
-    const where: Prisma.CategoryWhereInput = {};
-    if (isActive !== undefined) {
-      where.isActive = isActive;
+      const where: Prisma.CategoryWhereInput = {};
+      if (isActive !== undefined) {
+        where.isActive = isActive;
+      }
+
+      if (search) {
+        where.OR = [
+          {
+            name: { contains: search, mode: 'insensitive' },
+          },
+          {
+            descripcion: { contains: search, mode: 'insensitive' },
+          },
+        ];
+      }
+
+      const total = await this.prisma.category.count({ where });
+      const categorias = await this.prisma.category.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          _count: {
+            select: { products: true },
+          },
+        },
+      });
+
+      return {
+        data: categorias.map((categoria) => ({
+          id: categoria.id,
+          name: categoria.name,
+          descripcion: categoria.descripcion,
+          slug: categoria.slug,
+          isActive: categoria.isActive ?? true,
+          createdAt: categoria.createdAt,
+          updatedAt: categoria.updatedAt,
+          productCount: categoria._count.products,
+        })),
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException('Invalid query parameters', error);
     }
-
-    if (search) {
-      where.OR = [
-        {
-          name: { contains: search, mode: 'insensitive' },
-        },
-        {
-          descripcion: { contains: search, mode: 'insensitive' },
-        },
-      ];
-    }
-
-    const total = await this.prisma.category.count({ where });
-    const categorias = await this.prisma.category.findMany({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        _count: {
-          select: { products: true },
-        },
-      },
-    });
-
-    return {
-      data: categorias.map((categoria) => ({
-        id: categoria.id,
-        name: categoria.name,
-        descripcion: categoria.descripcion,
-        slug: categoria.slug,
-        isActive: categoria.isActive,
-        createdAt: categoria.createdAt,
-        updatedAt: categoria.updatedAt,
-        productCount: categoria._count.products,
-      })),
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
   }
 
   async findById(id: string): Promise<CategoryResponseDto> {
@@ -149,7 +154,7 @@ export class CategoriasService {
       name: categoria.name,
       descripcion: categoria.descripcion,
       slug: categoria.slug,
-      isActive: categoria.isActive,
+      isActive: categoria.isActive ?? true,
       createdAt: categoria.createdAt,
       updatedAt: categoria.updatedAt,
       productCount: categoria._count.products,
@@ -175,7 +180,7 @@ export class CategoriasService {
       name: categoria.name,
       descripcion: categoria.descripcion,
       slug: categoria.slug,
-      isActive: categoria.isActive,
+      isActive: categoria.isActive ?? true,
       createdAt: categoria.createdAt,
       updatedAt: categoria.updatedAt,
       productCount: categoria._count.products,
@@ -233,7 +238,7 @@ export class CategoriasService {
       name: updatedCategory.name,
       descripcion: updatedCategory.descripcion,
       slug: updatedCategory.slug,
-      isActive: updatedCategory.isActive,
+      isActive: updatedCategory.isActive ?? true,
       createdAt: updatedCategory.createdAt,
       updatedAt: updatedCategory.updatedAt,
       productCount: updatedCategory._count.products,
