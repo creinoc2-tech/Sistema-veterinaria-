@@ -50,10 +50,13 @@ export class ProductResponseDto {
   isActive: boolean;
 
   @ApiProperty({
-    example: 'Electronics',
+    example: ' Electrónica ',
     description: 'Categoría del producto',
   })
-  category: string | null;
+  category: {
+    id: string;
+    name: string;
+  };
 
   @ApiProperty({
     example: '2024-01-01T12:00:00Z',

@@ -59,7 +59,10 @@ export class ProductosService {
       sku: productos.sku,
       imageUrl: productos.imageUrl,
       isActive: productos.isActive,
-      category: productos.category.name,
+      category: {
+        id: productos.category.id,
+        name: productos.category.name,
+      },
       createdAt: productos.createdAt,
       updatedAt: productos.updatedAt,
     };
@@ -107,7 +110,10 @@ export class ProductosService {
         sku: producto.sku,
         imageUrl: producto.imageUrl,
         isActive: producto.isActive,
-        category: producto.category.name,
+        category: {
+          id: producto.category.id,
+          name: producto.category.name,
+        },
         createdAt: producto.createdAt,
         updatedAt: producto.updatedAt,
       })),
@@ -140,7 +146,10 @@ export class ProductosService {
       sku: productos.sku,
       imageUrl: productos.imageUrl,
       isActive: productos.isActive,
-      category: productos.category.name,
+      category: {
+        id: productos.category.id,
+        name: productos.category.name,
+      },
       createdAt: productos.createdAt,
       updatedAt: productos.updatedAt,
     };
@@ -197,7 +206,10 @@ export class ProductosService {
       sku: updatedProduct.sku,
       imageUrl: updatedProduct.imageUrl,
       isActive: updatedProduct.isActive,
-      category: updatedProduct.category.name,
+      category: {
+        id: updatedProduct.category.id,
+        name: updatedProduct.category.name,
+      },
       createdAt: updatedProduct.createdAt,
       updatedAt: updatedProduct.updatedAt,
     };
@@ -233,7 +245,10 @@ export class ProductosService {
       sku: updatedProduct.sku,
       imageUrl: updatedProduct.imageUrl,
       isActive: updatedProduct.isActive,
-      category: updatedProduct.category.name,
+      category: {
+        id: updatedProduct.category.id,
+        name: updatedProduct.category.name,
+      },
       createdAt: updatedProduct.createdAt,
       updatedAt: updatedProduct.updatedAt,
     };
