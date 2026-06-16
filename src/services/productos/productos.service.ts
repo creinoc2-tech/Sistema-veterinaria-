@@ -26,6 +26,14 @@ export class ProductosService {
     if (existingProduct) {
       throw new ConflictException('Product with this SKU already exists');
     }
+
+    const existingCategory = await this.prisma.category.findUnique({
+      where: { id: producto.categoryId },
+    });
+    if (!existingCategory) {
+      throw new NotFoundException('Category not found');
+    }
+
     const productos = await this.prisma.product.create({
       data: {
         name: producto.name || '',
@@ -161,6 +169,13 @@ export class ProductosService {
       }
     }
 
+    const existingCategory = await this.prisma.category.findUnique({
+      where: { id: producto.categoryId },
+    });
+    if (!existingCategory) {
+      throw new NotFoundException('Category not found');
+    }
+
     const updatedProduct = await this.prisma.product.update({
       where: { id },
       data: {
@@ -227,7 +242,6 @@ export class ProductosService {
   async deleteProduct(id: string): Promise<{ message: string }> {
     const existingProduct = await this.prisma.product.findUnique({
       where: { id },
-      include: { category: true },
     });
 
     if (!existingProduct) {
