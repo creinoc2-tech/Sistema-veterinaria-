@@ -44,7 +44,14 @@ export class MascotasService {
         duenoId: duenoId,
       },
       include: {
-        dueno: true,
+        dueno: {
+          select: {
+            id: true,
+            email: true,
+            firstname: true,
+            lastname: true,
+          },
+        },
       },
     });
 
@@ -73,73 +80,85 @@ export class MascotasService {
     data: MascotaResponseDto[];
     meta: { total: number; page: number; limit: number; totalPages: number };
   }> {
-    try {
-      const { especie, search, page = 1, limit = 10 } = queryDto;
+    const { especie, search, page = 1, limit = 10 } = queryDto;
 
-      const where: Prisma.MascotaWhereInput = {};
+    const where: Prisma.MascotaWhereInput = {};
 
-      if (especie) {
-        where.especie = especie;
-      }
-
-      if (search) {
-        where.OR = [
-          {
-            name: { contains: search, mode: 'insensitive' },
-          },
-          {
-            raza: { contains: search, mode: 'insensitive' },
-          },
-        ];
-      }
-
-      const total = await this.prisma.mascota.count({ where });
-      const mascotas = await this.prisma.mascota.findMany({
-        where,
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          dueno: true,
-        },
-      });
-
-      return {
-        data: mascotas.map((mascota) => ({
-          id: mascota.id,
-          name: mascota.name,
-          especie: mascota.especie,
-          raza: mascota.raza,
-          sexo: mascota.sexo,
-          fechaNac: mascota.fechaNac,
-          peso: mascota.peso,
-          color: mascota.color,
-          foto: mascota.foto,
-          duenoId: {
-            id: mascota.dueno.id,
-            email: mascota.dueno.email,
-            firstname: mascota.dueno.firstname,
-            lastname: mascota.dueno.lastname,
-          },
-          createdAt: mascota.createdAt,
-          updatedAt: mascota.updatedAt,
-        })),
-        meta: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
-        },
-      };
-    } catch (error) {
-      throw new BadRequestException('Error fetching mascotas', error);
+    if (especie) {
+      where.especie = especie;
     }
+
+    if (search) {
+      where.OR = [
+        {
+          name: { contains: search, mode: 'insensitive' },
+        },
+        {
+          raza: { contains: search, mode: 'insensitive' },
+        },
+      ];
+    }
+
+    const total = await this.prisma.mascota.count({ where });
+    const mascotas = await this.prisma.mascota.findMany({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        dueno: {
+          select: {
+            id: true,
+            email: true,
+            firstname: true,
+            lastname: true,
+          },
+        },
+      },
+    });
+
+    return {
+      data: mascotas.map((mascota) => ({
+        id: mascota.id,
+        name: mascota.name,
+        especie: mascota.especie,
+        raza: mascota.raza,
+        sexo: mascota.sexo,
+        fechaNac: mascota.fechaNac,
+        peso: mascota.peso,
+        color: mascota.color,
+        foto: mascota.foto,
+        duenoId: {
+          id: mascota.dueno.id,
+          email: mascota.dueno.email,
+          firstname: mascota.dueno.firstname,
+          lastname: mascota.dueno.lastname,
+        },
+        createdAt: mascota.createdAt,
+        updatedAt: mascota.updatedAt,
+      })),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findById(id: string): Promise<MascotaResponseDto> {
     const mascota = await this.prisma.mascota.findUnique({
       where: { id },
-      include: { dueno: true },
+      include: {
+        dueno: {
+          select: {
+            id: true,
+            email: true,
+            firstname: true,
+            lastname: true,
+          },
+        },
+      },
     });
 
     if (!mascota) {
@@ -205,6 +224,42 @@ export class MascotasService {
       createdAt: updatedMascota.createdAt,
       updatedAt: updatedMascota.updatedAt,
     };
+  }
+
+  async findByIdForUser(userId: string): Promise<MascotaResponseDto[]> {
+    const mascotas = await this.prisma.mascota.findMany({
+      where: { duenoId: userId },
+      include: {
+        dueno: {
+          select: {
+            id: true,
+            email: true,
+            firstname: true,
+            lastname: true,
+          },
+        },
+      },
+    });
+
+    return mascotas.map((mascota) => ({
+      id: mascota.id,
+      name: mascota.name,
+      especie: mascota.especie,
+      raza: mascota.raza,
+      sexo: mascota.sexo,
+      fechaNac: mascota.fechaNac,
+      peso: mascota.peso,
+      color: mascota.color,
+      foto: mascota.foto,
+      duenoId: {
+        id: mascota.dueno.id,
+        email: mascota.dueno.email,
+        firstname: mascota.dueno.firstname,
+        lastname: mascota.dueno.lastname,
+      },
+      createdAt: mascota.createdAt,
+      updatedAt: mascota.updatedAt,
+    }));
   }
 
   async deleteMascota(id: string): Promise<{ message: string }> {

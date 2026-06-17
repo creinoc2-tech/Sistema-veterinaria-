@@ -74,6 +74,15 @@ export class MascotasController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(Role.ADMIN, Role.RECEPCIONISTA, Role.VETERINARIO)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Get all mascotas' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of mascotas retrieved successfully.',
+    type: [MascotaResponseDto],
+  })
   @ApiOperation({
     summary: 'Get all mascotas with optional filters',
   })
@@ -105,6 +114,9 @@ export class MascotasController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(Role.ADMIN, Role.RECEPCIONISTA, Role.VETERINARIO)
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get mascota by id',
   })
@@ -119,6 +131,28 @@ export class MascotasController {
   })
   async findById(@Param('id') id: string): Promise<MascotaResponseDto> {
     return this.mascotasService.findById(id);
+  }
+
+  @Get(':id/mis-mascotas')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(Role.CLIENTE)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Get mascota by id',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Mascota details',
+    type: [MascotaResponseDto],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Mascota not found',
+  })
+  async findByIdForUser(
+    @GetUser('id') userId: string,
+  ): Promise<MascotaResponseDto[]> {
+    return this.mascotasService.findByIdForUser(userId);
   }
 
   @Patch(':id')
