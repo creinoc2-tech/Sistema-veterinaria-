@@ -178,13 +178,6 @@ export class ProductosService {
       }
     }
 
-    const existingCategory = await this.prisma.category.findUnique({
-      where: { id: producto.categoryId },
-    });
-    if (!existingCategory) {
-      throw new NotFoundException('Category not found');
-    }
-
     const updatedProduct = await this.prisma.product.update({
       where: { id },
       data: {

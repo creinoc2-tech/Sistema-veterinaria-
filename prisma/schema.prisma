@@ -63,7 +63,7 @@ model Mascota {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  nombre   String
+  name   String
   especie  Especie
   raza     String?
   sexo     Sexo

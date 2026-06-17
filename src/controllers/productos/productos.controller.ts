@@ -123,6 +123,10 @@ export class ProductosController {
     status: 409,
     description: 'Product slug already exists',
   })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+  })
   async updateProducto(
     @Param('id') id: string,
     @Body() updateProductoDto: UpdateProductoDto,
