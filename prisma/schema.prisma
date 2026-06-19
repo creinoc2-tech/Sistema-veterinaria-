@@ -44,18 +44,38 @@ enum EstadoPago {
   ANULADO
 }
 
+enum EstadoCita {
+  PENDIENTE
+  CONFIRMADA
+  EN_PROCESO
+  COMPLETADA
+  CANCELADA
+}
+
+enum TipoCita {
+  CONSULTA
+  VACUNA
+  CIRUGIA
+  CONTROL
+  EMERGENCIA
+  OTRO
+}
+
 model User {
-  id           String    @id @default(cuid())
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  email        String    @unique
-  password     String
-  firstname    String
-  lastname     String
-  role         Role      @default(CLIENTE)
-  refreshToken String?
-  mascotas     Mascota[]
-  facturas     Factura[]
+  id               String    @id @default(cuid())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  email            String    @unique
+  password         String
+  firstname        String
+  lastname         String
+  role             Role      @default(CLIENTE)
+  refreshToken     String?
+  mascotas         Mascota[]
+  facturas         Factura[]
+  citasVeterinario Cita[]    @relation("CitasVeterinario")
+  citasCreadoPor   Cita[]    @relation("CitasCreadoPor")
+  citasCliente     Cita[]    @relation("CitasCliente")
 }
 
 model Mascota {
@@ -63,7 +83,7 @@ model Mascota {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name   String
+  name     String
   especie  Especie
   raza     String?
   sexo     Sexo
@@ -73,25 +93,26 @@ model Mascota {
   foto     String?
   duenoId  String
   dueno    User      @relation(fields: [duenoId], references: [id], onDelete: Cascade)
-   
+
+  citas Cita[]
 }
 
 model Category {
-  id        String    @id @default(uuid())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  name       String    @unique
-  descripcion String?   
+  id          String    @id @default(uuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  name        String    @unique
+  descripcion String?
   slug        String    @unique
-  isActive    Boolean   @default(true) 
-  products  Product[]
+  isActive    Boolean   @default(true)
+  products    Product[]
 }
 
 model Product {
   id           String        @id @default(uuid())
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  name       String
+  name         String
   descripcion  String?
   precio       Decimal       @db.Decimal(10, 2)
   stock        Int           @default(0)
@@ -101,7 +122,7 @@ model Product {
   categoryId   String
   category     Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   facturaItems FacturaItem[]
- }
+}
 
 model Factura {
   id         String        @id @default(uuid())
@@ -125,4 +146,33 @@ model FacturaItem {
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   cantidad  Int
   precio    Decimal  @db.Decimal(10, 2)
+}
+
+model Cita {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  fecha  DateTime
+  hora   String
+  motivo String
+  estado EstadoCita @default(PENDIENTE)
+  tipo   TipoCita
+  notas  String?
+
+  // relación con mascota
+  mascotaId String
+  mascota   Mascota @relation(fields: [mascotaId], references: [id], onDelete: Cascade)
+
+  // veterinario que atiende
+  veterinarioId String
+  veterinario   User   @relation("CitasVeterinario", fields: [veterinarioId], references: [id])
+
+  // quien creó la cita (recepcionista, admin o cliente)
+  creadoPorId String
+  creadoPor   User    @relation("CitasCreadoPor", fields: [creadoPorId], references: [id])
+
+  clienteId     String
+  cliente       User   @relation("CitasCliente", fields: [clienteId], references: [id])
+ 
 }

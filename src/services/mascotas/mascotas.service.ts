@@ -40,6 +40,7 @@ export class MascotasService {
         fechaNac: createMascotaDto.fechaNac,
         peso: createMascotaDto.peso,
         foto: createMascotaDto.foto,
+
         color: createMascotaDto.color,
         duenoId: duenoId,
       },
@@ -192,7 +193,16 @@ export class MascotasService {
   ): Promise<MascotaResponseDto> {
     const existingMascota = await this.prisma.mascota.findUnique({
       where: { id },
-      include: { dueno: true },
+      include: {
+        dueno: {
+          select: {
+            id: true,
+            email: true,
+            firstname: true,
+            lastname: true,
+          },
+        },
+      },
     });
 
     if (!existingMascota) {
@@ -202,7 +212,16 @@ export class MascotasService {
     const updatedMascota = await this.prisma.mascota.update({
       where: { id },
       data: updateMascotaDto,
-      include: { dueno: true },
+      include: {
+        dueno: {
+          select: {
+            id: true,
+            email: true,
+            firstname: true,
+            lastname: true,
+          },
+        },
+      },
     });
 
     return {

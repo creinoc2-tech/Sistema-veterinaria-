@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsDateString,
   IsEnum,
+  IsISO8601,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -50,12 +50,14 @@ export class CreateMascotaDto {
   sexo: Sexo;
 
   @ApiProperty({
-    example: '2020-01-01',
+    example: '2020-01-01T00:00:00.000Z',
     description: 'Fecha de nacimiento de la mascota',
+    type: 'string', // ← agregar esto
+    format: 'date-time', // ← agregar esto
   })
-  @IsDateString()
+  @IsISO8601()
   @IsOptional()
-  fechaNac?: Date;
+  fechaNac?: string;
 
   @ApiProperty({
     example: 25.99,
