@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CitaResponseDto } from '../../dtos/cita/cita-response.dto';
 import { CreateCitaDto } from '../../dtos/cita/create-cita.dto';
@@ -26,13 +22,13 @@ export class CitasService {
     });
 
     if (!mascota) {
-      throw new BadRequestException('mascotaId is required');
+      throw new NotFoundException('mascotaId is required');
     }
     const veterinario = await this.prisma.user.findUnique({
       where: { id: veterinarioId, role: 'VETERINARIO' },
     });
     if (!veterinario) {
-      throw new BadRequestException('veterinarioId is required');
+      throw new NotFoundException('veterinarioId is required');
     }
 
     const cliente = await this.prisma.user.findUnique({
@@ -40,7 +36,7 @@ export class CitasService {
     });
 
     if (!cliente) {
-      throw new BadRequestException('clienteId is required');
+      throw new NotFoundException('clienteId is required');
     }
 
     const citaExistente = await this.prisma.cita.findFirst({
@@ -51,7 +47,7 @@ export class CitasService {
       },
     });
     if (citaExistente) {
-      throw new BadRequestException(
+      throw new NotFoundException(
         'El veterinario ya tiene una cita en esa fecha y hora',
       );
     }
@@ -294,7 +290,7 @@ export class CitasService {
     });
 
     if (!cita) {
-      throw new BadRequestException('Cita not found');
+      throw new NotFoundException('Cita not found');
     }
 
     return {
@@ -525,6 +521,14 @@ export class CitasService {
             lastname: true,
           },
         },
+        cliente: {
+          select: {
+            id: true,
+            email: true,
+            firstname: true,
+            lastname: true,
+          },
+        },
       },
     });
 
@@ -559,6 +563,12 @@ export class CitasService {
         email: cita.creadoPor.email,
         firstname: cita.creadoPor.firstname,
         lastname: cita.creadoPor.lastname,
+      },
+      clienteId: {
+        id: cita.cliente.id,
+        email: cita.cliente.email,
+        firstname: cita.cliente.firstname,
+        lastname: cita.cliente.lastname,
       },
 
       createdAt: cita.createdAt,
