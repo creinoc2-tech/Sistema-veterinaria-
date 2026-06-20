@@ -1,13 +1,13 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Especie, EstadoCita, TipoCita } from '@prisma/client';
+import { EstadoCita, TipoCita } from '@prisma/client';
 
 export class QueryCitaDto {
   @ApiPropertyOptional({
-    enum: Especie,
-    example: 'PERRO',
-    description: 'Filtrar por especie',
+    enum: EstadoCita,
+    example: 'PENDIENTE',
+    description: 'Filtrar por estado de la cita',
   })
   @IsEnum(EstadoCita)
   @IsOptional()

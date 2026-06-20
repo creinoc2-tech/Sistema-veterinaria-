@@ -50,7 +50,7 @@ export class RegisterDto {
 
   @ApiProperty({
     description: 'User role',
-    example: 'USER',
+    example: 'CLIENTE',
     enum: Role,
   })
   @IsEnum(Role, { message: 'Invalid role' })

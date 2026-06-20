@@ -35,6 +35,7 @@ export class AuthService {
           password: hashedPassword,
           firstname,
           lastname,
+          role: registerDto.role || 'CLIENTE',
         },
         select: {
           id: true,

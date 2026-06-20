@@ -9,6 +9,7 @@ import { CategoriasModule } from './categorias/categorias.module';
 import { ProductosModule } from './productos/productos.module';
 import { MascotasModule } from './mascotas/mascotas.module';
 import { CitasModule } from './citas/citas.module';
+import { FacturasModule } from './facturas/facturas.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CitasModule } from './citas/citas.module';
     ProductosModule,
     MascotasModule,
     CitasModule,
+    FacturasModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -39,13 +39,14 @@ export class CreateCitaDto {
   @IsNotEmpty()
   motivo: string;
 
-  @ApiProperty({
-    description: 'Estado de la cita',
+  @ApiPropertyOptional({
+    enum: EstadoCita,
     example: 'PENDIENTE',
+    default: 'PENDIENTE',
   })
-  @IsEnum(EstadoCita, { message: 'Invalid role' })
-  @IsNotEmpty()
-  estado: EstadoCita;
+  @IsEnum(EstadoCita, { message: 'Invalid estado' })
+  @IsOptional()
+  estado?: EstadoCita;
 
   @ApiProperty({
     description: 'Tipo de la cita',
@@ -80,14 +81,6 @@ export class CreateCitaDto {
   @IsString()
   @IsNotEmpty()
   veterinarioId: string;
-
-  @ApiPropertyOptional({
-    example: 'uuid-del-usuario',
-    description: 'ID del usuario que creó la cita (solo ADMIN/RECEPCIONISTA)',
-  })
-  @IsString()
-  @IsNotEmpty()
-  creadoPorId: string;
 
   @ApiPropertyOptional({
     example: 'uuid-del-usuario',

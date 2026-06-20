@@ -27,8 +27,8 @@ import { CreateCitaDto } from '../../dtos/cita/create-cita.dto';
 import { CitaResponseDto } from '../../dtos/cita/cita-response.dto';
 import { GetUser } from '../../decorators/get-user.decorator';
 import { QueryCitaDto } from '../../dtos/cita/cita-service.dto';
-import { UpdateEstadoCitaDto } from '../../dtos/cita/updateEstado.dto';
 import { UpdateCitaDto } from '../../dtos/cita/update-cita.dto';
+import { UpdateEstadoCitaDto } from '../../dtos/cita/updateEstado.dto';
 @ApiTags('Citas')
 @Controller('citas')
 export class CitasController {
@@ -36,7 +36,7 @@ export class CitasController {
 
   @Post('create')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.RECEPCIONISTA, Role.VETERINARIO)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Create a new cita' })
   @ApiBody({ type: CreateCitaDto })

@@ -125,15 +125,20 @@ model Product {
 }
 
 model Factura {
-  id         String        @id @default(uuid())
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-  numero     String        @unique @default(cuid())
-  total      Decimal       @db.Decimal(10, 2)
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  subtotal  Decimal  @db.Decimal(10, 2)
+  numero    String   @unique @default(cuid())
+  total     Decimal  @db.Decimal(10, 2)
+  iva       Decimal  @db.Decimal(10, 2)
+
   metodoPago MetodoPago
   estadoPago EstadoPago    @default(PENDIENTE)
   userId     String
   user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  citaId     String        @unique
+  cita       Cita          @relation(fields: [citaId], references: [id])
   items      FacturaItem[]
 }
 
@@ -170,9 +175,9 @@ model Cita {
 
   // quien creó la cita (recepcionista, admin o cliente)
   creadoPorId String
-  creadoPor   User    @relation("CitasCreadoPor", fields: [creadoPorId], references: [id])
+  creadoPor   User   @relation("CitasCreadoPor", fields: [creadoPorId], references: [id])
 
-  clienteId     String
-  cliente       User   @relation("CitasCliente", fields: [clienteId], references: [id])
- 
+  clienteId String
+  cliente   User     @relation("CitasCliente", fields: [clienteId], references: [id])
+  factura   Factura?
 }
